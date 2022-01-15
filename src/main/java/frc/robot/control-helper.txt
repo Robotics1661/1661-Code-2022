@@ -1,0 +1,12 @@
+Drivebox
+Drive - Left and right sticks
+Change gears - Left and right bumper
+
+Mechbox
+Lower/raise intake - A button
+Toggle intake - B button
+HA - Left trigger
+VA - Right trigger
+Shooting - X button
+Switch agitator direction - Left stick button
+Run intake in reverse - Y button
