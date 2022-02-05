@@ -14,12 +14,13 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 public interface Robot_Framework extends Constants {
 
     // Xbox Controllers
-    XboxController driveBox = new XboxController(1);
-    XboxController mechBox = new XboxController(0);
+    XboxController driveBox = new XboxController(0);
+    XboxController mechBox = new XboxController(1);
 
     // Compressor
-    Compressor compressor = new Compressor(0, PneumaticsModuleType.CTREPCM);
+    // Compressor compressor = new Compressor(0, PneumaticsModuleType.CTREPCM);
 
+    
 
     // Drive
     WPI_TalonFX fLeft = new WPI_TalonFX(front_left_drive);
@@ -27,12 +28,14 @@ public interface Robot_Framework extends Constants {
     WPI_TalonFX bLeft = new WPI_TalonFX(back_left_drive);
     WPI_TalonFX bRight = new WPI_TalonFX(back_right_drive);
 
+    // private Encoder = 
+
     MotorControllerGroup left = new MotorControllerGroup(fLeft, bLeft);
     MotorControllerGroup right = new MotorControllerGroup(fRight, bRight);
 
     DifferentialDrive tank = new DifferentialDrive(left, right);
 
-    DoubleSolenoid gearSole = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 0, 1);
+    // DoubleSolenoid gearSole = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 0, 1);
 
     Drive drive = new Drive();
     AutoDrive auto = new AutoDrive();
@@ -40,7 +43,7 @@ public interface Robot_Framework extends Constants {
     // Intake
     TalonSRX rightIntake = new TalonSRX(right_intake);
     TalonSRX leftIntake = new TalonSRX(left_intake);
-    DoubleSolenoid intakePosition = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 2, 3);
+    // DoubleSolenoid intakePosition = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 2, 3);
     Intake intake = new Intake();
 
     // Shooter
@@ -60,7 +63,7 @@ public interface Robot_Framework extends Constants {
     TalonSRX turret = new TalonSRX(turret_motor);
 
     // Climb
-    DoubleSolenoid climbSole = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 4, 5);
+    // DoubleSolenoid climbSole = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 4, 5);
 
 
 }

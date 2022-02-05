@@ -32,17 +32,17 @@ public class Intake implements Robot_Framework {
     }
 
     // Negative values reverse the intake
-    public void spin(double speed) {
-        rightIntake.set(ControlMode.PercentOutput, speed);
-        leftIntake.set(ControlMode.PercentOutput, -speed);
-    }
+    // public void spin(double speed) {
+    //     rightIntake.set(ControlMode.PercentOutput, speed);
+    //     leftIntake.set(ControlMode.PercentOutput, -speed);
+    // }
 
-    public void raise() {
-        intakePosition.set(DoubleSolenoid.Value.kReverse);
-    }
+    // public void raise() {
+    //     intakePosition.set(DoubleSolenoid.Value.kReverse);
+    // }
 
-    public void lower() {
-        intakePosition.set(DoubleSolenoid.Value.kForward);
-    }
+    // public void lower() {
+    //     intakePosition.set(DoubleSolenoid.Value.kForward);
+    // }
 
 }

@@ -15,6 +15,10 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
+
 // import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.motorcontrol.PWMTalonFX;
 import edu.wpi.first.wpilibj.*;
@@ -32,6 +36,8 @@ import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+
+import edu.wpi.first.wpilibj.AnalogInput;
 /**
  * The VM is configured to automatically run this class, and to call the
  * functions corresponding to each mode, as described in the TimedRobot
@@ -53,6 +59,14 @@ public class Robot extends TimedRobot implements Robot_Framework {
   double startTime;
   boolean safe = false;
 
+  NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
+NetworkTableEntry tx = table.getEntry("tx");
+NetworkTableEntry ty = table.getEntry("ty");
+NetworkTableEntry ta = table.getEntry("ta");
+NetworkTableEntry tcornx = table.getEntry("tcornx");
+NetworkTableEntry tcorny = table.getEntry("tcorny");
+
+private final AnalogInput ultrasonic = new AnalogInput(0);
   
   /**
    * This function is run when the robot is first started up and should be
@@ -80,6 +94,7 @@ public class Robot extends TimedRobot implements Robot_Framework {
   public void robotPeriodic() {
   }
 
+  
   /**
    * This autonomous (along with the chooser code above) shows how to select
    * between different autonomous modes using the dashboard. The sendable
@@ -97,7 +112,7 @@ public class Robot extends TimedRobot implements Robot_Framework {
     // // m_autoSelected = m_chooser.getSelected();
     // // // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
     // // System.out.println("Auto selected: " + m_autoSelected);
-    // startTime = Timer.getFPGATimestamp();
+    startTime = Timer.getFPGATimestamp();
   }
 
   /**
@@ -106,9 +121,16 @@ public class Robot extends TimedRobot implements Robot_Framework {
   @Override
   public void autonomousPeriodic() {
 
-    // double time = Timer.getFPGATimestamp();
+    double time = Timer.getFPGATimestamp();
 
-    // double diff = time - startTime;
+    double diff = time - startTime;
+
+    System.out.println(diff);
+
+    if (diff < 7) {
+      drive.moveSpeed(.3);
+      // drive.turnSlightlyLeft();
+    }
 
     // // if (diff < 2) {
     // //   bRight.set(ControlMode.PercentOutput, .4);
@@ -170,36 +192,131 @@ public class Robot extends TimedRobot implements Robot_Framework {
     // verticalAgitator.setNeutralMode((NeutralMode.Coast));
     // shooterLeft.setNeutralMode((NeutralMode.Coast));
     // shooterRight.setNeutralMode((NeutralMode.Coast));
-    turret.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative,0,10);
-    turret.setSelectedSensorPosition(0,0,10);
+    // turret.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative,0,10);
+    // turret.setSelectedSensorPosition(0,0,10);
 
-    turret.selectProfileSlot(0, 0);
-		turret.config_kF(0, 0, 10);
-		turret.config_kP(0, 0.1, 10);
-		turret.config_kI(0, 0, 10);
-		turret.config_kD(0, 0, 10);
+    // turret.selectProfileSlot(0, 0);
+		// turret.config_kF(0, 0, 10);
+		// turret.config_kP(0, 0.1, 10);
+		// turret.config_kI(0, 0, 10);
+		// turret.config_kD(0, 0, 10);
     
-    turret.configMotionAcceleration(20000);
-    turret.configMotionCruiseVelocity(25000);
+    // turret.configMotionAcceleration(20000);
+    // turret.configMotionCruiseVelocity(25000);
+    startTime = Timer.getFPGATimestamp();
   }
 
   @Override
   public void teleopPeriodic() {
 
+    double raw_value = ultrasonic.getValue();
+
+  //voltage_scale_factor allows us to compensate for differences in supply voltage.
+
+    double voltage_scale_factor = 5/RobotController.getVoltage5V();
+
+    double currentDistanceCentimeters = raw_value * voltage_scale_factor * 0.125;
+
+    double currentDistanceInches = raw_value * voltage_scale_factor * 0.0492;
+
+    SmartDashboard.putNumber("Current Distance (inches)", currentDistanceInches);
+double x = tx.getDouble(0.0);
+double y = ty.getDouble(0.0);
+double area = ta.getDouble(0.0);
+double[] xCorners = tcornx.getDoubleArray(new double[] {});
+double[] yCorners = tcorny.getDoubleArray(new double[] {});
+
+double topWidth = xCorners[3] - xCorners[0];
+double bottomWidth = xCorners[2] - xCorners[1];
+double leftHeight = yCorners[1] - yCorners[0];
+double rightHeight = yCorners[2] - yCorners[3];
+
+double avgWidth = ((topWidth) + (bottomWidth)) / 2.0;
+double avgHeight = ((leftHeight) + (rightHeight)) / 2.0;
+
+//post to smart dashboard periodically
+SmartDashboard.putNumber("LimelightX", x);
+SmartDashboard.putNumber("LimelightY", y);
+SmartDashboard.putNumber("LimelightArea", area);
+SmartDashboard.putNumber("AverageWidth", avgWidth);
+SmartDashboard.putNumber("AverageHeight", avgHeight);
+SmartDashboard.putNumber("TopWidth", topWidth);
+SmartDashboard.putNumber("BottomWidth", bottomWidth);
+SmartDashboard.putNumber("LeftHeight", leftHeight);
+SmartDashboard.putNumber("RightHeight", rightHeight);
+
+for (int i = 0; i < 4; i++) {
+  SmartDashboard.putNumber("X (" + (i) + ")", xCorners[i]);
+  SmartDashboard.putNumber("Y (" + (i) + ")", yCorners[i]);
+}
+SmartDashboard.putNumberArray("XCorners", xCorners);
+SmartDashboard.putNumberArray("YCorners", yCorners);
+
+
+
     drive.executeTank();
 
-    // Shifting Gears --> BUMPERS
-    if (driveBox.getRawButton(left_bumper)) { 
-      gearSole.set(DoubleSolenoid.Value.kReverse); // High Gear
-    } 
-    else if (driveBox.getRawButton(right_bumper)) {
-      gearSole.set(DoubleSolenoid.Value.kForward); // Low Gear
+    double Kp = -0.1;
+    double min_command = 0.05;
+
+    if (driveBox.getRawButton(a_button)) {
+      double heading_error = -x;
+      // System.out.println(heading_error);
+      double steering_adjust = 0;
+      if (x > 3.0) {
+        // steering_adjust =  Kp*heading_error - min_command;
+        drive.turnSlightlyRight();
+      }
+      else if (x < -3.0) {
+        // steering_adjust = Kp*heading_error + min_command;
+        drive.turnSlightlyLeft();
+      }
+      else if (x == Math.abs(0.0)) {
+        drive.turn(0.4);
+      }
+      if (Math.abs(x) < 1) {
+        
+      }
     }
 
-    // Raising/Lowering Intake --> A BUTTON
-    if (driveBox.getRawButtonPressed(a_button) || mechBox.getRawButtonPressed(a_button)) {
-      intakeLowered = !intakeLowered;
-    }
+    double time = Timer.getFPGATimestamp();
+    System.out.println(time);
+    System.out.println(startTime);
+
+    double diff = time - startTime;
+    // startTime = Timer.getFPGATimestamp();
+
+    if (driveBox.getRawButton(y_button)) {
+      
+    } 
+
+    // if (diff < 1) {
+    //   drive.moveSpeed(.3);
+    // }
+    
+    // if (driveBox.getRawButton(b_button)) {
+    //   drive.turnSlightlyRight();
+    // }
+    // else if (driveBox.getRawButton(x_button)) {
+    //   drive.turnSlightlyLeft();
+    // }
+    // if (diff < 2) {
+     
+    // }
+
+
+    // // Shifting Gears --> BUMPERS
+    // if (driveBox.getRawButton(left_bumper)) { 
+    //   gearSole.set(DoubleSolenoid.Value.kReverse); // High Gear
+    // } 
+    // else if (driveBox.getRawButton(right_bumper)) {
+    //   gearSole.set(DoubleSolenoid.Value.kForward); // Low Gear
+    // }
+
+    // // Raising/Lowering Intake --> A BUTTON
+    // if (driveBox.getRawButtonPressed(a_button) || mechBox.getRawButtonPressed(a_button)) {
+    //   intakeLowered = !intakeLowered;
+    // }
 
     // // Reversing Agitators --> Left Stick BUTTON
     // if (mechBox.getRawButtonPressed(left_stick_button)) {
@@ -225,65 +342,65 @@ public class Robot extends TimedRobot implements Robot_Framework {
     //   mechBox.setRumble(RumbleType.kLeftRumble, 0);
     // } 
  
-    if (intakeLowered) {
-      intakePosition.set(DoubleSolenoid.Value.kForward);
-      // intake.lower();
-    } 
-    else if (!intakeLowered) {
-      intakePosition.set(DoubleSolenoid.Value.kReverse);
-      // intake.raise();
-    }
+    // if (intakeLowered) {
+    //   intakePosition.set(DoubleSolenoid.Value.kForward);
+    //   // intake.lower();
+    // } 
+    // else if (!intakeLowered) {
+    //   intakePosition.set(DoubleSolenoid.Value.kReverse);
+    //   // intake.raise();
+    // }
 
-    // Intake -- holding B button
-    if (mechBox.getRawButton(b_button)) {
-      rightIntake.set(ControlMode.PercentOutput, .5);
-      leftIntake.set(ControlMode.PercentOutput, -.5);
-      // intake.spin(.5);
-    }
-    else if (mechBox.getRawButton(y_button)) {
-      // Running Intake in Reverse
-      rightIntake.set(ControlMode.PercentOutput, -.5);
-      leftIntake.set(ControlMode.PercentOutput, .5);
-      // intake.spin(-.5);
-    }
-    else {
-      rightIntake.set(ControlMode.PercentOutput, 0);
-      leftIntake.set(ControlMode.PercentOutput, 0);
-      // intake.spin(0);
-    }
+    // // Intake -- holding B button
+    // if (mechBox.getRawButton(b_button)) {
+    //   rightIntake.set(ControlMode.PercentOutput, .5);
+    //   leftIntake.set(ControlMode.PercentOutput, -.5);
+    //   // intake.spin(.5);
+    // }
+    // else if (mechBox.getRawButton(y_button)) {
+    //   // Running Intake in Reverse
+    //   rightIntake.set(ControlMode.PercentOutput, -.5);
+    //   leftIntake.set(ControlMode.PercentOutput, .5);
+    //   // intake.spin(-.5);
+    // }
+    // else {
+    //   rightIntake.set(ControlMode.PercentOutput, 0);
+    //   leftIntake.set(ControlMode.PercentOutput, 0);
+    //   // intake.spin(0);
+    // }
 
     // // Vertical Agitator
 
-    double va = mechBox.getRawAxis(right_trigger);
-    if (va > .1 && !agitatorReverse){
-      verticalAgitator.set(ControlMode.PercentOutput, va *.4);
-      // vAgitator.spin(va);
-    }
-    else if (va > .1 && agitatorReverse){
-      verticalAgitator.set(ControlMode.PercentOutput, -va * .4);
-      // vAgitator.spin(-va);
-    }
-    else {
-      verticalAgitator.set(ControlMode.PercentOutput, 0);
-      // vAgitator.spin(0);
-    }
+    // double va = mechBox.getRawAxis(right_trigger);
+    // if (va > .1 && !agitatorReverse){
+    //   verticalAgitator.set(ControlMode.PercentOutput, va *.4);
+    //   // vAgitator.spin(va);
+    // }
+    // else if (va > .1 && agitatorReverse){
+    //   verticalAgitator.set(ControlMode.PercentOutput, -va * .4);
+    //   // vAgitator.spin(-va);
+    // }
+    // else {
+    //   verticalAgitator.set(ControlMode.PercentOutput, 0);
+    //   // vAgitator.spin(0);
+    // }
 
  
 
     // HA
-    double ha = mechBox.getRawAxis(left_trigger);
-    if (ha > .1 && !agitatorReverse){
-      horizontalAgitator.set(ControlMode.PercentOutput, -ha * .2);
-      // hAgitator.spin(ha);
-    }
-    else if (ha > .1 && agitatorReverse){
-      horizontalAgitator.set(ControlMode.PercentOutput, ha * .2);
-      // hAgitator.spin(-ha);
-    } 
-    else {
-      horizontalAgitator.set(ControlMode.PercentOutput, 0);
-      // hAgitator.spin(0);
-    }
+    // double ha = mechBox.getRawAxis(left_trigger);
+    // if (ha > .1 && !agitatorReverse){
+    //   horizontalAgitator.set(ControlMode.PercentOutput, -ha * .2);
+    //   // hAgitator.spin(ha);
+    // }
+    // else if (ha > .1 && agitatorReverse){
+    //   horizontalAgitator.set(ControlMode.PercentOutput, ha * .2);
+    //   // hAgitator.spin(-ha);
+    // } 
+    // else {
+    //   horizontalAgitator.set(ControlMode.PercentOutput, 0);
+    //   // hAgitator.spin(0);
+    // }
 
     // // Shooting (very basic) -- calculate later
     // if (mechBox.getXButton() || mechBox.getRawButton(right_bumper)) {
@@ -318,49 +435,49 @@ public class Robot extends TimedRobot implements Robot_Framework {
 
 
 
-    double turretStick = mechBox.getRawAxis(4);
+  //   double turretStick = mechBox.getRawAxis(4);
 
-    if (Math.abs(turretStick) > .1) {
-      turret.set(ControlMode.PercentOutput, turretStick * 0.8);
-    }
-    else {
-      turret.set(ControlMode.PercentOutput, 0);
+  //   if (Math.abs(turretStick) > .1) {
+  //     turret.set(ControlMode.PercentOutput, turretStick * 0.8);
+  //   }
+  //   else {
+  //     turret.set(ControlMode.PercentOutput, 0);
     
-    System.out.println(turret.getSelectedSensorPosition());
-    
-
-    
-    // //System.out.println("Turret Degree: " + (1.0 * turret.getSelectedSensorPosition() / one_turret_degree));
-    
-    // boolean xButton = mechBox.getRawButton(3);
-    // if(xButton){
-    //   random = (int)((Math.random()*21000)+2000);
-    //   System.out.println("hey I'm here");
-    // }
-    // System.out.println("random: " + random);
-    // turret.setSensorPhase(false);
-    // turret.set(ControlMode.MotionMagic, random);
-
-    // boolean usingLimelight = true;
-
-    // if (usingLimelight) { // if using the limelight
-    //   NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(0);
-    // }
-    // else { // in all other cases
-    //   NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(1);
-    // }
-
-    // // Limelight stuff
-    // System.out.println("Valid targets?" + (NetworkTableInstance.getDefault().getTable("limelight").getEntry("tv").getDouble(0)));
-    // System.out.println("Horizontal Offset From Crosshair To Target?" + (NetworkTableInstance.getDefault().getTable("limelight").getEntry("tx").getDouble(0)));
-    // System.out.println("Vertical Offset From Crosshair To Target? " + (NetworkTableInstance.getDefault().getTable("limelight").getEntry("ty").getDouble(0)));
-    // System.out.println("Target Area? " + (NetworkTableInstance.getDefault().getTable("limelight").getEntry("ta").getDouble(0)));
-
-    
+  //   System.out.println(turret.getSelectedSensorPosition());
     
 
     
-  }
+  //   // //System.out.println("Turret Degree: " + (1.0 * turret.getSelectedSensorPosition() / one_turret_degree));
+    
+  //   // boolean xButton = mechBox.getRawButton(3);
+  //   // if(xButton){
+  //   //   random = (int)((Math.random()*21000)+2000);
+  //   //   System.out.println("hey I'm here");
+  //   // }
+  //   // System.out.println("random: " + random);
+  //   // turret.setSensorPhase(false);
+  //   // turret.set(ControlMode.MotionMagic, random);
+
+  //   // boolean usingLimelight = true;
+
+  //   // if (usingLimelight) { // if using the limelight
+  //   //   NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(0);
+  //   // }
+  //   // else { // in all other cases
+  //   //   NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(1);
+  //   // }
+
+  //   // // Limelight stuff
+  //   // System.out.println("Valid targets?" + (NetworkTableInstance.getDefault().getTable("limelight").getEntry("tv").getDouble(0)));
+  //   // System.out.println("Horizontal Offset From Crosshair To Target?" + (NetworkTableInstance.getDefault().getTable("limelight").getEntry("tx").getDouble(0)));
+  //   // System.out.println("Vertical Offset From Crosshair To Target? " + (NetworkTableInstance.getDefault().getTable("limelight").getEntry("ty").getDouble(0)));
+  //   // System.out.println("Target Area? " + (NetworkTableInstance.getDefault().getTable("limelight").getEntry("ta").getDouble(0)));
+
+    
+    
+
+    
+  // }
 
 
     
