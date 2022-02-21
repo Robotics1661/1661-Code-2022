@@ -1,6 +1,7 @@
 Drivebox
 Drive - Left and right sticks
 Change gears - Left and right bumper
+A - temporary automatic tests
 
 Mechbox
 Lower/raise intake - A button

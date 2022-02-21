@@ -2,35 +2,73 @@ package frc.robot;
 
 import frc.robot.Robot_Framework;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Drive implements Robot_Framework{
     
 
     double x, y, throttle, turn, speedL, speedR, t_left, t_right;
 
+    private static final int kPIDLoopIdx = 0;
+    private static final int kSlotIdx = 0;
+
     public Drive() { 
 
         fLeft.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, peak_current, continuous_current, 0.5));
-
         fRight.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, peak_current, continuous_current, 0.5));
-
-        fLeft.configOpenloopRamp(open_ramp);
-
-        fRight.configOpenloopRamp(open_ramp);
-
         bLeft.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, peak_current, continuous_current, 0.5));
-
         bRight.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, peak_current, continuous_current, 0.5));
-
+        
+        fLeft.configOpenloopRamp(open_ramp);
+        fRight.configOpenloopRamp(open_ramp);
         bLeft.configOpenloopRamp(open_ramp);
-
         bRight.configOpenloopRamp(open_ramp);
+
+        fLeft.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor, kPIDLoopIdx, kTimeoutMs);
+        fRight.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor, kPIDLoopIdx, kTimeoutMs);
+        bLeft.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor, kPIDLoopIdx, kTimeoutMs);
+        bRight.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor, kPIDLoopIdx, kTimeoutMs);
+        
+        fRight.setSelectedSensorPosition(0);
+        bRight.setSelectedSensorPosition(0);
+        fLeft.setSelectedSensorPosition(0);
+        bLeft.setSelectedSensorPosition(0);
+
+        fLeft.setSensorPhase(false);
+        fRight.setSensorPhase(false);
+        bLeft.setSensorPhase(false);
+        bRight.setSensorPhase(false);
+
+        fLeft.setInverted(false);
+        fRight.setInverted(false);
+        bLeft.setInverted(false);
+        bRight.setInverted(false);
+
+        fLeft.config_kP(kSlotIdx, drive_p, kTimeoutMs);
+        fRight.config_kP(kSlotIdx, drive_p, kTimeoutMs);
+        bLeft.config_kP(kSlotIdx, drive_p, kTimeoutMs);
+        bRight.config_kP(kSlotIdx, drive_p, kTimeoutMs);
+
+        fLeft.config_kI(kSlotIdx, drive_i, kTimeoutMs);
+        fRight.config_kI(kSlotIdx, drive_i, kTimeoutMs);
+        bLeft.config_kI(kSlotIdx, drive_i, kTimeoutMs);
+        bRight.config_kI(kSlotIdx, drive_i, kTimeoutMs);
+
+        fLeft.config_kD(kSlotIdx, drive_d, kTimeoutMs);
+        fRight.config_kD(kSlotIdx, drive_d, kTimeoutMs);
+        bLeft.config_kD(kSlotIdx, drive_d, kTimeoutMs);
+        bRight.config_kD(kSlotIdx, drive_d, kTimeoutMs);
+
+        // fLeft.configMotionCruiseVelocity(sensorUnitsPer100ms);
+        // fLeft.configMotionAcceleration(sensorUnitsPer100msPerSec);
 
         // NOTE: Not sure if we need this line; ask/research
         // compressor.setClosedLoopControl(true);
@@ -64,17 +102,16 @@ public class Drive implements Robot_Framework{
         t_left = throttle + turn;
         t_right = throttle - turn;
 
+        //TEMP: Slow it down while we don't have pneumatic gear switching yet
+        t_left *= 0.5;
+        t_right *= 0.5;
+
         
 
         speedL = t_left + skim(t_right);
         speedR = t_right + skim(t_left);
 
-
-        // speedL = Math.pow(speedL, 3);
-        // speedR = Math.pow(speedR, 3);
-
-        tank.tankDrive(speedL, speedR);
-        // Timer.delay(.005);
+        tank.tankDrive(speedL * .75, speedR * .75);
 
     }
 
@@ -88,25 +125,34 @@ public class Drive implements Robot_Framework{
     }
 
     public void moveSpeed(double v) {
-        // System.out.println("Workinggggggg TURN RIGHT");
         t_left = -v;
         t_right = v;
         speedL = t_left + skim(t_right);
         speedR = t_right + skim(t_left);
+
+
+        SmartDashboard.putNumber("speedL", speedL);
+        SmartDashboard.putNumber("speedR", speedR);
+
         tank.tankDrive(speedL, speedR);
     }
 
     public void autoMove(double v) {
-        // System.out.println("Workinggggggg TURN RIGHT");
         t_left = -v;
         t_right = v;
         speedL = t_left + skim(t_right);
         speedR = t_right + skim(t_left);
-        // tank.arcadeDrive(xSpeed, zRotation);
+    }
+
+    public void moveSetPos(double p) {
+        System.out.println("In the zone");
+        fRight.set(ControlMode.MotionMagic, p);
+        bRight.set(ControlMode.MotionMagic, p);
+        fLeft.set(ControlMode.MotionMagic, -p);
+        bLeft.set(ControlMode.MotionMagic, -p);
     }
 
     public void turnSlightlyRight() {
-        // System.out.println("Workinggggggg TURN RIGHT");
         t_left = 0.3;
         t_right = 0.3;
         speedL = t_left + skim(t_right);
@@ -116,7 +162,6 @@ public class Drive implements Robot_Framework{
 
 
     public void turnSlightlyLeft() {
-        // System.out.println("Workinggggggg TURN RIGHT");
         t_left = -0.3;
         t_right = -0.3;
         speedL = t_left + skim(t_right);

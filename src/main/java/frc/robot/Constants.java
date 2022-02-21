@@ -3,26 +3,35 @@ package frc.robot;
 public interface Constants {
 
     // ID -- Most ID constants need to be changed (imaginary vaules in now)
-    
-    final static int shooter_L = 13;
-    final static int shooter_R = 12;
-    final static int kicker_motor = 19;
-    
-    final static int turret_motor = 14;
 
+    /*
+        3 motors for VA
+        2 HA
+        1 Intake
+        1 Shooter
+        2 for climb
+    */
+
+    final static int test_talon = 25;
+    
     final static int front_right_drive = 5;
     final static int front_left_drive = 6;
     final static int back_right_drive = 7; 
     final static int back_left_drive = 8;
 
-    final static int right_intake = 10; 
-    final static int left_intake = 11; 
+    final static int shooter_motor = 19;
 
-    final static int horizontal_agitator = 16;
-    final static int vertical_agitator = 17;
+    final static int intake_motor = 10; 
 
-    final static int climb1 = 24;
-    final static int climb2 = 25;
+    final static int horizontal_agitator_right = 16;
+    final static int horizontal_agitator_left = 17;
+
+    final static int vertical_agitator_right = 11;
+    final static int vertical_agitator_left = 12;
+    final static int vertical_agitator_front = 13;
+
+    final static int climb_left = 24;
+    final static int climb_right = 25;
 
     // Drive
 
@@ -86,8 +95,47 @@ public interface Constants {
 
 
     // PID
-
+    double degreesToTicks = 4096./360;
     int kTimeoutMs = 10; // Re-evaluate this
+    int ticks_per_revolution = 4096;
+
+    // Intake PID
+    double intake_p = 0.0;
+    double intake_i = 0.0;
+    double intake_d = 0.0;
+    double intake_f = 0.0;
+
+
+    // Horizontal Agitator PID
+    double ha_p = 0.0;
+    double ha_i = 0.0;
+    double ha_d = 0.0;
+    double ha_f = 0.0;
+
+    // Vertical Agitator PID
+    double va_p = 0.0;
+    double va_i = 0.0;
+    double va_d = 0.0;
+    double va_f = 0.0;
+
+    // Shooter PID
+    double shooter_p = 0.0;
+    double shooter_i = 0.0;
+    double shooter_d = 0.0;
+    double shooter_f = 0.0;
+
+    // Climb PID
+    double climb_p = 0.0;
+    double climb_i = 0.0;
+    double climb_d = 0.0;
+    double climb_f = 0.0;
+
+    // Drive PID
+    double drive_p = 0.3;
+    double drive_i = 0.0;
+    double drive_d = 0.0;
+    double drive_f = 0.0;
+    
 
     // 1 encouder rotation: 4096 counts = (230/16) * 9
     // 240 counts --> 1 turret rotation

@@ -183,3 +183,33 @@ System.out.print("crystal clear cutlery");
   // DifferentialDrive tank = new DifferentialDrive(left, right);
 
    Drive drive = new Drive();
+
+
+   
+    /*else if (Math.abs(x) < 3) { // NO ATTACKING
+      if (getDistanceIn() > 70) { // no crashing, preferably
+        if (area < 0.2) { //a little more NO CRASH safety
+          drive.moveSpeed(0.3);
+        }
+      }
+    }*/
+  }
+  
+
+  if (driveBox.getRawButton(a_button)) {
+      // if (fRight.getSelectedSensorPosition() < 20000) {
+      //   drive.moveSpeed(.3);
+      // }
+      /*if (currentDistanceInches > 50) { //NOTE: seems a little slow to respond?? maybe slow it down a bit
+        drive.moveSpeed(.4);
+      }
+      else {
+        drive.moveSpeed(0);
+      }*/
+      findTargetStep();
+
+    } else { //If it just runs afterward anyways, this overrides the previous speed setting, and it doesn't move correctly
+      // Teleop Tank Drive
+      drive.executeTank(); // Uses both sticks on driveBox
+    }
+  
