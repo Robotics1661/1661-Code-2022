@@ -1,18 +1,6 @@
 package frc.robot;
 
 public interface Constants {
-
-    // ID -- Most ID constants need to be changed (imaginary vaules in now)
-
-    /*
-        3 motors for VA
-        2 HA
-        1 Intake
-        1 Shooter
-        2 for climb
-    */
-
-    final static int test_talon = 25;
     
     final static int front_right_drive = 5;
     final static int front_left_drive = 6;
@@ -23,8 +11,8 @@ public interface Constants {
 
     final static int intake_motor = 10; 
 
-    final static int horizontal_agitator_right = 16;
-    final static int horizontal_agitator_left = 17;
+    final static int horizontal_agitator_right = 16; // originally 16
+    final static int horizontal_agitator_left = 17; // originally 17
 
     final static int vertical_agitator_right = 11;
     final static int vertical_agitator_left = 12;
@@ -54,6 +42,8 @@ public interface Constants {
     final static double wheel_radius = 0.0762; // m
     final static double robot_weight = 58.0598; // kg
     final static double max_accel = torque / (wheel_radius * robot_weight); // m/s/s
+
+    final static double encoder_units_per_rotation = 2048; // might be 4096 - TEST & CHECK
 
     final static double max_jerk = 60.0; // m/s/s/s
 

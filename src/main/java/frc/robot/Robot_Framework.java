@@ -23,9 +23,6 @@ public interface Robot_Framework extends Constants {
 
     Ultrasonic ultrasonic = new Ultrasonic();
 
-    // Test Talon
-    WPI_TalonSRX testTalon = new WPI_TalonSRX(test_talon);
-
     // Compressor
     // Compressor compressor = new Compressor(0, PneumaticsModuleType.CTREPCM);
 

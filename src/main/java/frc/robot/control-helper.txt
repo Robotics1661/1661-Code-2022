@@ -1,13 +1,12 @@
-Drivebox
+*Drivebox*
 Drive - Left and right sticks
-Change gears - Left and right bumper
-A - temporary automatic tests
+Autospin to locate target - A button
 
-Mechbox
-Lower/raise intake - A button
-Toggle intake - B button
-HA - Left trigger
-VA - Right trigger
-Shooting - X button
-Switch agitator direction - Left stick button
-Run intake in reverse - Y button
+*Mechbox*
+Intake - B button
+Intake Reverse - B button and left bumper
+Run HA - Y button
+Run HA Reverse - Y button and left bumper
+Run VA and Shooter - A button
+Run HA, VA, and Shooter - Either trigger
+Autospin to locate target - X button

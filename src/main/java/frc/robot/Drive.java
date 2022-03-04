@@ -79,11 +79,14 @@ public class Drive implements Robot_Framework{
         bRight.setNeutralMode((NeutralMode.Coast));
     }
 
+    /**
+     *  <p>Drive the robot with the Xbox joysticks.</p>
+    */
     public void executeTank() {
         
         // FIX THISSSSSSSSSS ASAP THE CURRENT FIX IS RIDICULOUS
         y = driveBox.getRawAxis(right_x_axis); // left_y_axis
-        x = driveBox.getRawAxis(left_y_axis); // right_x_axis
+        x = -driveBox.getRawAxis(left_y_axis); // right_x_axis
 
         
 
@@ -103,8 +106,8 @@ public class Drive implements Robot_Framework{
         t_right = throttle - turn;
 
         //TEMP: Slow it down while we don't have pneumatic gear switching yet
-        t_left *= 0.5;
-        t_right *= 0.5;
+        // t_left *= 0.5;
+        // t_right *= 0.5;
 
         
 
@@ -114,7 +117,10 @@ public class Drive implements Robot_Framework{
         tank.tankDrive(speedL * .75, speedR * .75);
 
     }
-
+    /**
+     *  <p>Turns the robot at a given speed.</p>
+     *  @param v Percent output 0-1 <em>(Positive values to turn right, negative values to turn left.)</em>
+    */
     public void turn(double v) {
         // System.out.println("Workinggggggg TURN RIGHT");
         t_left = v;
@@ -123,7 +129,10 @@ public class Drive implements Robot_Framework{
         speedR = t_right + skim(t_left);
         tank.tankDrive(speedL, speedR);
     }
-
+    /**
+     *  <p>Moves the robot at a given speed.</p>
+     *  @param v Percent output 0-1 <em>(Positive values to move forward, negative values to move backward.)</em>
+    */
     public void moveSpeed(double v) {
         t_left = -v;
         t_right = v;
@@ -137,21 +146,9 @@ public class Drive implements Robot_Framework{
         tank.tankDrive(speedL, speedR);
     }
 
-    public void autoMove(double v) {
-        t_left = -v;
-        t_right = v;
-        speedL = t_left + skim(t_right);
-        speedR = t_right + skim(t_left);
-    }
-
-    public void moveSetPos(double p) {
-        System.out.println("In the zone");
-        fRight.set(ControlMode.MotionMagic, p);
-        bRight.set(ControlMode.MotionMagic, p);
-        fLeft.set(ControlMode.MotionMagic, -p);
-        bLeft.set(ControlMode.MotionMagic, -p);
-    }
-
+    /**
+     *  <p>Slowly turns the robot right.</p>
+    */
     public void turnSlightlyRight() {
         t_left = 0.3;
         t_right = 0.3;
@@ -160,7 +157,9 @@ public class Drive implements Robot_Framework{
         tank.tankDrive(speedL, speedR);
     }
 
-
+    /**
+     *  <p>Slowly turns the robot left.</p>
+    */
     public void turnSlightlyLeft() {
         t_left = -0.3;
         t_right = -0.3;

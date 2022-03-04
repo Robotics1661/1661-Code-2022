@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+import com.kauailabs.navx.frc.AHRS;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -38,6 +39,8 @@ public class Robot extends TimedRobot implements Robot_Framework {
   NetworkTableEntry ty = table.getEntry("ty");
   NetworkTableEntry ta = table.getEntry("ta");
   NetworkTableEntry tv = table.getEntry("tv");
+
+  AHRS ahrs = new AHRS();
 
 
   /**
@@ -105,6 +108,7 @@ public class Robot extends TimedRobot implements Robot_Framework {
   @Override
   public void robotPeriodic() {
     updateSmartDashboard();
+  //  System.out.println(ahrs.getAngle());
   }
 
   
@@ -121,7 +125,10 @@ public class Robot extends TimedRobot implements Robot_Framework {
    */
   @Override
   public void autonomousInit() {
-
+    fRight.setSelectedSensorPosition(0);
+    bRight.setSelectedSensorPosition(0);
+    fLeft.setSelectedSensorPosition(0);
+    bLeft.setSelectedSensorPosition(0);
   }
 
   /**
@@ -129,6 +136,9 @@ public class Robot extends TimedRobot implements Robot_Framework {
    */
   @Override
   public void autonomousPeriodic() {
+
+    auto.driveDistance(.3, 3);
+    
 
   }
 
@@ -144,49 +154,61 @@ public class Robot extends TimedRobot implements Robot_Framework {
 
   @Override
   public void teleopPeriodic() {
-    
-    // Testing Code
-    // if (driveBox.getRawButton(b_button)) {
-    //   testTalon.set(ControlMode.PercentOutput, .2);
-    //   System.out.println(testTalon.getMotorOutputPercent());
-    // }
 
+    // Drive - driveBox joysticks ONLY
+    drive.executeTank();
 
-    // Rotate drivetrain to find target with Limelight
-    if (driveBox.getRawButton(a_button)) {
+    // Rotate drivetrain to find target with Limelight - Both
+    if (driveBox.getRawButton(a_button) || mechBox.getRawButton(x_button)) {
       findTargetStep();
     }
 
-    // Shifting gears with driveBox bumbers
 
-    // Running intake with mechBox buttons
-    if (driveBox.getLeftBumper() && driveBox.getRawButton(x_button)) {
+    // Running intake with mechBox B button, hold left bumper to reverse
+    if (mechBox.getLeftBumper() && driveBox.getRawButton(b_button)) {
       intake.spinReverse();
     }
-    else if (driveBox.getRawButton(x_button)) {
+    else if (mechBox.getRawButton(b_button)) {
       intake.spin();
     }
-    else {
+    if (mechBox.getRawButtonReleased(b_button)) {
       intake.stop();
     }
 
-    // Running horizontal agitator with mechBox buttons
-    if (driveBox.getLeftBumper() && driveBox.getRawButton(b_button)) {
+    // Running horizontal agitator with mechBox Y button, hold left bumper to reverse
+    if (mechBox.getLeftBumper() && mechBox.getRawButton(y_button)) {
       ha.moveFromVA();
     }
-    else if (driveBox.getRawButton(b_button)) {
+    else if (mechBox.getRawButton(y_button)) {
       ha.moveToVA();
     }
-    else {
+    if (mechBox.getRawButtonReleased(y_button)) {
       ha.stop();
     }
-    
 
-    // Running vertical agitator with mechBox buttons
+    // Run vertical agitator and shooter with mechBox A button
+    if (mechBox.getRawButton(a_button)) {
+      va.spinUp();
+      shooter.shoot();
+    }
+    if (mechBox.getRawButtonReleased(a_button)) {
+      va.stop();
+      shooter.stop();
+    }
 
-    // Shooting with mechBox triggers
-
-    // Climbing with driveBox buttons
+    // Run horizontal agitator, vertical agitator, and shooter with mechBox right trigger
+    if (mechBox.getRightBumper()) {
+      ha.moveFromVA();
+      va.spinUp();
+      intake.spin();
+      shooter.shoot();
+    }
+    if (mechBox.getRightBumperReleased()) {
+      ha.stop();
+      va.stop();
+      intake.stop();
+      shooter.stop();
+    }
     
   }
 

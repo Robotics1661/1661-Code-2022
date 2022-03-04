@@ -12,7 +12,10 @@ public class Ultrasonic {
     }
 
     // GET DISTANCES FROM ULTRASONIC SENSOR
-
+    /**
+     *  <p>Gets the distance from the ultrasonic sensor in centimeters.</p>
+    */
+    
     public double getDistCm() {
         double raw_value = ultrasonicSensor.getValue();
         
@@ -21,7 +24,10 @@ public class Ultrasonic {
         double currentDistanceCentimeters = raw_value * voltage_scale_factor * 0.125;
         return currentDistanceCentimeters;
     }
-
+    // GET DISTANCES FROM ULTRASONIC SENSOR
+    /**
+     *  <p>Gets the distance from the ultrasonic sensor in inches.</p>
+    */
     public double getDistIn() {
         double raw_value = ultrasonicSensor.getValue();
 

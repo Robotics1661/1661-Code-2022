@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 
 import frc.robot.Robot_Framework;
@@ -17,6 +18,14 @@ public class Shooter implements Robot_Framework {
         shooterMotor.setInverted(false);
         shooterMotor.config_kF(kSlotIdx, shooter_f, kTimeoutMs);
         
+    }
+
+    public void shoot() {
+        shooterMotor.set(ControlMode.PercentOutput, 1);
+    }
+
+    public void stop() {
+        shooterMotor.set(ControlMode.PercentOutput, 0);
     }
 
 }

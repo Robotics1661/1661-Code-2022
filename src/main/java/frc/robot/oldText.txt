@@ -212,4 +212,23 @@ System.out.print("crystal clear cutlery");
       // Teleop Tank Drive
       drive.executeTank(); // Uses both sticks on driveBox
     }
+    // Testing Code
+    // if (driveBox.getRawButton(b_button)) {
+    //   testTalon.set(ControlMode.PercentOutput, .2);
+    //   System.out.println(testTalon.getMotorOutputPercent());
+    // }
+
+     // After getting wheel measurements take raw distance in inches as input & convert to ticks
+    // wheel radius = 3 inches
+    /*
+        collect input in inches
+        convert inches to meters
+        2048 units per rotation
+        distance traveled per rotation = 2PIr * num_rotations
+        we want to go from inputted distance (in meters) to encoder units
+        first: distance --> num wheel rotations
+            num_rotations = distance / (2pi * wheel_radius)
+        next: num_rotations --> encoder units
+            encoder_units = num_rotations * 2048
+    */
   
