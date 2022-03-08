@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.*;
+import com.kauailabs.navx.frc.AHRS;
 
 import frc.robot.Robot_Framework;
 
@@ -18,7 +19,13 @@ public class AutoDrive implements Robot_Framework {
     private static final int kPIDLoopIdx = 0;
     private static final int kSlotIdx = 0;
 
+    AHRS gyro = new AHRS();
+
+    double currentAngle = 0;
+
+
     public AutoDrive() {
+        
         fLeft.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, peak_current, continuous_current, 0.5));
         fRight.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, peak_current, continuous_current, 0.5));
         bLeft.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, peak_current, continuous_current, 0.5));
@@ -91,12 +98,27 @@ public class AutoDrive implements Robot_Framework {
      *  <p>Drive a fixed distance autonomously.</p>
      *  @param speed Percent output 0-1
      *  @param distance Distance to drive in meters
+     *  @return boolean whether or not robot has reached setpoint
     */
-    public void driveDistance(double speed, double distance) {
+    public boolean driveDistance(double speed, double distance) {
         double numRotations = distance / (2 * Math.PI * wheel_radius);
         int encoderUnits = (int)(numRotations * encoder_units_per_rotation);
         if (fRight.getSelectedSensorPosition() < encoderUnits) {
             execute(speed);
+        }
+        if (fRight.getSelectedSensorPosition() >= encoderUnits) {
+            return true;
+        }
+        return false;
+    }
+
+    // NEED TO CHANGE ANGLE BASED ON WHICH TARMAC WE START IN
+    // and potentially also all distances
+    // source from network tables
+    public void turnAngle(double speed, double angle) {
+
+        if (gyro.getAngle() < angle) {
+            drive.turn(speed);
         }
     }
 

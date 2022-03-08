@@ -88,6 +88,8 @@ public class Drive implements Robot_Framework{
         y = driveBox.getRawAxis(right_x_axis); // left_y_axis
         x = -driveBox.getRawAxis(left_y_axis); // right_x_axis
 
+        System.out.println(x);
+        System.out.println(y);
         
 
         if (Math.abs(y) > 0.1)
@@ -104,12 +106,6 @@ public class Drive implements Robot_Framework{
 
         t_left = throttle + turn;
         t_right = throttle - turn;
-
-        //TEMP: Slow it down while we don't have pneumatic gear switching yet
-        // t_left *= 0.5;
-        // t_right *= 0.5;
-
-        
 
         speedL = t_left + skim(t_right);
         speedR = t_right + skim(t_left);
@@ -150,8 +146,8 @@ public class Drive implements Robot_Framework{
      *  <p>Slowly turns the robot right.</p>
     */
     public void turnSlightlyRight() {
-        t_left = 0.3;
-        t_right = 0.3;
+        t_left = 0.5;
+        t_right = 0.5;
         speedL = t_left + skim(t_right);
         speedR = t_right + skim(t_left);
         tank.tankDrive(speedL, speedR);
@@ -161,8 +157,8 @@ public class Drive implements Robot_Framework{
      *  <p>Slowly turns the robot left.</p>
     */
     public void turnSlightlyLeft() {
-        t_left = -0.3;
-        t_right = -0.3;
+        t_left = -0.5;
+        t_right = -0.5;
         speedL = t_left + skim(t_right);
         speedR = t_right + skim(t_left);
         tank.tankDrive(speedL, speedR);

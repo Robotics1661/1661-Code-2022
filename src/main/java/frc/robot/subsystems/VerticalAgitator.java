@@ -39,9 +39,9 @@ public class VerticalAgitator implements Robot_Framework {
     */
     
     public void spinUp() {
-        verticalAgitatorRight.set(ControlMode.PercentOutput, 1);
-        verticalAgitatorLeft.set(ControlMode.PercentOutput, -1);
-        verticalAgitatorFront.set(ControlMode.PercentOutput, 1);
+        verticalAgitatorRight.set(ControlMode.PercentOutput, .99);
+        verticalAgitatorLeft.set(ControlMode.PercentOutput, -.99);
+        verticalAgitatorFront.set(ControlMode.PercentOutput, .99);
     }
     
     /**

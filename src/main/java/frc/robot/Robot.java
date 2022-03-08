@@ -14,13 +14,16 @@ import java.util.ResourceBundle.Control;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
+import com.fasterxml.jackson.databind.ser.std.StdJdkSerializers;
 
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.util.net.PortForwarder;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import com.kauailabs.navx.frc.AHRS;
@@ -41,6 +44,12 @@ public class Robot extends TimedRobot implements Robot_Framework {
   NetworkTableEntry tv = table.getEntry("tv");
 
   AHRS ahrs = new AHRS();
+
+  double startTime;
+  double timeReachedSetpoint = 0;
+  double shooterTicker = 0;
+
+  
 
 
   /**
@@ -76,15 +85,21 @@ public class Robot extends TimedRobot implements Robot_Framework {
     double area = ta.getDouble(0.0);
     double valid = tv.getDouble(0.0);
 
-    if (x > 3.0) {
+    if (x > 5.0) {
       drive.turnSlightlyRight();
     }
-    else if (x < -3.0) {
+    else if (x < -5.0) {
       drive.turnSlightlyLeft();
     }
     else if (valid == Math.abs(0.0)) {
-      drive.turn(0.4);
+      drive.turn(0.6);
     }
+  }
+
+  public void fullShoot() {
+      ha.moveToVA();
+      va.spinUp();
+      shooter.shoot();
   }
 
   /**
@@ -94,7 +109,8 @@ public class Robot extends TimedRobot implements Robot_Framework {
 
   @Override
   public void robotInit() {
-
+    PortForwarder.add(5800, "limelight.local", 5800);
+    PortForwarder.add(5809, "limelight.local", 5801);
   }
 
   /**
@@ -125,19 +141,43 @@ public class Robot extends TimedRobot implements Robot_Framework {
    */
   @Override
   public void autonomousInit() {
+
+    startTime = Timer.getFPGATimestamp();
+
     fRight.setSelectedSensorPosition(0);
     bRight.setSelectedSensorPosition(0);
     fLeft.setSelectedSensorPosition(0);
     bLeft.setSelectedSensorPosition(0);
+
   }
 
   /**
    * This function is called periodically during autonomous.
+   * Current 
    */
   @Override
   public void autonomousPeriodic() {
 
-    auto.driveDistance(.3, 3);
+    double time = Timer.getFPGATimestamp();
+    shooter.shoot();
+    va.spinUp();
+    if (auto.driveDistance(.2, 15)) {
+      if (timeReachedSetpoint == 0) {
+        timeReachedSetpoint = Timer.getFPGATimestamp();
+      }
+      if (timeReachedSetpoint != 0) {
+        if (time < timeReachedSetpoint + 7) {
+          fullShoot();
+        }
+        else {
+          shooter.stop();
+          ha.stop();
+          va.stop();
+        }
+        
+      }
+      
+    }
     
 
   }
@@ -156,16 +196,54 @@ public class Robot extends TimedRobot implements Robot_Framework {
   public void teleopPeriodic() {
 
     // Drive - driveBox joysticks ONLY
-    drive.executeTank();
+ 
+    
+    // Drive - driveBox joysticks ONLY
+    if (mechBox.getRightTriggerAxis() > .3) {
+      ha.moveToVA();
+      va.spinUp();
+      shooter.shootSmall();
+    }
+    // else if (mechBox.getLeftTriggerAxis() > .3 {
+    //   ha.moveToVA();
+    //   va.spinUp();
+    //   shooter.shoot();
+    // }
+    else {
+      ha.stop();
+      va.stop();
+      shooter.stop();
+    }
+    // if (mechBox.getRawButton(8)) {
+    //   va.spinUp();
+    //   shooter.shoot();
+    // }
+    // if (mechBox.getRawButtonReleased(8)) {
+    //   va.stop();
+    //   shooter.stop();
+    // }
+    if (mechBox.getRawButton(right_bumper)) {
+      va.spinUp();
+      shooter.shoot();
+      ha.moveToVA();
+    }
+    if (mechBox.getRawButtonReleased(right_bumper)) {
+      va.stop();
+      shooter.stop();
+      ha.stop();
+    }
 
     // Rotate drivetrain to find target with Limelight - Both
     if (driveBox.getRawButton(a_button) || mechBox.getRawButton(x_button)) {
       findTargetStep();
     }
+    else { 
+      drive.executeTank();
+    }
 
 
     // Running intake with mechBox B button, hold left bumper to reverse
-    if (mechBox.getLeftBumper() && driveBox.getRawButton(b_button)) {
+    if (mechBox.getLeftBumper() && mechBox.getRawButton(b_button)) {
       intake.spinReverse();
     }
     else if (mechBox.getRawButton(b_button)) {
@@ -186,6 +264,7 @@ public class Robot extends TimedRobot implements Robot_Framework {
       ha.stop();
     }
 
+
     // Run vertical agitator and shooter with mechBox A button
     if (mechBox.getRawButton(a_button)) {
       va.spinUp();
@@ -197,18 +276,10 @@ public class Robot extends TimedRobot implements Robot_Framework {
     }
 
     // Run horizontal agitator, vertical agitator, and shooter with mechBox right trigger
-    if (mechBox.getRightBumper()) {
-      ha.moveFromVA();
-      va.spinUp();
-      intake.spin();
-      shooter.shoot();
-    }
-    if (mechBox.getRightBumperReleased()) {
-      ha.stop();
-      va.stop();
-      intake.stop();
-      shooter.stop();
-    }
+
+
+
+
     
   }
 
@@ -219,6 +290,8 @@ public class Robot extends TimedRobot implements Robot_Framework {
   @Override
   public void testInit() {
 
+
+    startTime = Timer.getFPGATimestamp();
     
   }
 
@@ -226,7 +299,23 @@ public class Robot extends TimedRobot implements Robot_Framework {
   @Override
   public void testPeriodic() {
 
+    // auto.turnAngle(.5, 90);
+    // if (Timer.getFPGATimestamp() - startTime < 2) {
+    //   shooter.shoot();
+    //   va.spinUp();
+    // }
+    // else if (Timer.getFPGATimestamp() - startTime < 5) {
+    //   intake.spin();
+    //   fullShoot();
+    // }
+
+    // shooter.shoot();
+    // va.spinUp();
+    // Timer.delay(2);
+    // intake.spin();
+    // fullShoot();
     
+    drive.moveSpeed(.3);
 
 
   }

@@ -17,11 +17,20 @@ public class Shooter implements Robot_Framework {
         shooterMotor.setSensorPhase(false);
         shooterMotor.setInverted(false);
         shooterMotor.config_kF(kSlotIdx, shooter_f, kTimeoutMs);
+        // fLeft.config_kP(kSlotIdx, .3, kTimeoutMs);
         
     }
 
     public void shoot() {
-        shooterMotor.set(ControlMode.PercentOutput, 1);
+        shooterMotor.set(ControlMode.PercentOutput, .99);
+    }
+
+    public void shootVariable(double v) {
+        shooterMotor.set(ControlMode.PercentOutput, v);
+    }
+
+    public void shootSmall() {
+        shooterMotor.set(ControlMode.PercentOutput, .45);
     }
 
     public void stop() {

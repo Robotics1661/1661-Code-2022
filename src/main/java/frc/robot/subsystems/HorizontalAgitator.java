@@ -33,16 +33,16 @@ public class HorizontalAgitator implements Robot_Framework {
     */
     
     public void moveToVA() {
-        horizontalAgitatorRight.set(ControlMode.PercentOutput, -.4);
-        horizontalAgitatorLeft.set(ControlMode.PercentOutput, .4);
+        horizontalAgitatorRight.set(ControlMode.PercentOutput, .4);
+        horizontalAgitatorLeft.set(ControlMode.PercentOutput, -.4);
     }
 
     /**
      *  <p>Spins the horizontal agitator to move the ball from the vertical agitator to the intake.</p>
     */
     public void moveFromVA() {
-        horizontalAgitatorRight.set(ControlMode.PercentOutput, .4);
-        horizontalAgitatorLeft.set(ControlMode.PercentOutput, -.4);
+        horizontalAgitatorRight.set(ControlMode.PercentOutput, -.4);
+        horizontalAgitatorLeft.set(ControlMode.PercentOutput, .4);
     }
     /**
      *  <p>Stops the horizontal agitator (sets motor output to 0).</p>

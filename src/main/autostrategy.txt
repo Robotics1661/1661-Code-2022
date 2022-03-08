@@ -1,0 +1,8 @@
+1. Drive backwards
+2. Shoot
+3. Turn towards another ball [input pre-game]
+    ball will either be to your right or left
+4. Drive towards another ball
+5. Intake new ball
+6. Locate target and turn towards target
+7. Shoot
